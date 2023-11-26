@@ -94,7 +94,13 @@ jobs:
       #       -DBUILD_SHARED_LIBS=OFF ^
       #       -DCMAKE_INSTALL_PREFIX="cmake-build/${{ env.cmakeInstallationPath }}" -B./cmake-build &&^
       #       cd cmake-build && cmake --build . --config Release && cmake --install . 
-            
+
+      - if: ${{ matrix.compiler.url }}
+        shell: cmd
+        run: |
+          curl https://github.com/dirkarnez/pcre2-prebuilt/releases/download/v10.42/pcre2-v10.42-${{ matrix.compiler.name }}.zip -L -O -J &&^
+          7z.exe x pcre2-v10.42-${{ matrix.compiler.name }}.zip -o"pcre2-v10.42-${{ matrix.compiler.name }}"
+      
       - name: set PATH, check mingw version, cmake generate, build and install
         if: ${{ matrix.compiler.url }}
         shell: cmd
@@ -109,6 +115,7 @@ jobs:
             cmake.exe -G"MinGW Makefiles" ^
             -DCMAKE_BUILD_TYPE=Release ^
             -DBUILD_SHARED_LIBS=OFF ^
+            -Dpcre2_DIR="%CD_LINUX%/pcre2-v10.42-${{ matrix.compiler.name }}/cmake" ^
             -DCMAKE_INSTALL_PREFIX="cmake-build/${{ env.cmakeInstallationPath }}" -B./cmake-build &&^
             cd cmake-build && ( cmake --build . --config Release && cmake --install .  || type .\CMakeFiles\CMakeError.log )  
  
